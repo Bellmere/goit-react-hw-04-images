@@ -1,0 +1,39 @@
+.searchbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    width: 100%;
+    height: 70px;
+    background-color: rgb(29, 29, 188);
+}
+
+.searchbar__form {
+    position: relative;
+}
+
+.searchbar__btn {
+    position: absolute;
+    top: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.searchbar__btn__icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+}
+
+.searchbar__btn__icon svg {
+    width: 18px;
+    height: 18px;
+    fill: rgba(0, 0, 0, .5);
+}
+
+.searchbar__input {
+    padding: 10px 24px;
+    width: 33vw;
+    max-width: 400px;
+}
