@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState, useEffect} from "react";
 import { fetchImages } from "Api/Api";
 import { Loader } from "components/Loader/Loader";
 import { ImageGalleryItem } from "components/ImageGalleryItem/ImageGalleryItem";
@@ -7,106 +7,109 @@ import { Modal } from "components/Modal/Modal";
 import css from '../ImageGallery/ImageGallery.module.css';
 import PropTypes from 'prop-types';
 
-export class ImageGallery extends Component {
-    state = {
-        inputSearch: '',
-        error: null,
-        status: 'idle',
-        images: [],
-        pageNr: 1,
-        showModal: false,
-        imgSrc: '',
-        imgAlt: '',
-    };
+const Status = {
+    IDLE: 'idle',
+    PENDING: 'pending',
+    RESOLVED: 'resolved',
+    REJECTED: 'rejected',
+  }
 
-    componentDidUpdate(prevProps, prevState) {
-        const prevSearch = prevProps.inputSearch;
-        const currentSearch = this.props.inputSearch;
+export const ImageGallery = ({currentSearch}) => {
+    const [inputSearch, setInputSearch] = useState('');
+    const [error, setError] = useState(null);
+    const [images, setImages] = useState([]);
+    const [pageNr, setPageNr] = useState(1);
+    const [showModal, setShowModal] = useState(false);
+    const [imgAlt, setImgAlt] = useState('');
+    const [imgSrc, setImgSrc] = useState('');
+    const [status, setStatus] = useState(Status.IDLE);
 
-        if (prevSearch !== currentSearch) {
-            this.setState({status: 'pending', inputSearch: currentSearch});
-
-            fetchImages(currentSearch, 1)
-            .then(images => this.setState({images, status: 'resolved'}))
-            .catch(error => this.setState({error, status: 'rejected'}));
+    useEffect(() => {
+        console.log(currentSearch);
+        if (!currentSearch) {
+            return;
         }
-    };
 
-    onClickMore = async () => {
-        const {inputSearch, pageNr, images} = this.state;
-        const response = await fetchImages(inputSearch, pageNr + 1,)
-        this.setState({
-          images: [...images, ...response],
-          pageNr: pageNr + 1,
-        });
+        
+        setInputSearch(currentSearch);
+        setPageNr(1);
+        setStatus(Status.PENDING);
+
+        fetchImages(currentSearch, 1)
+            .then(images => {
+                setImages(images);
+                setStatus(Status.RESOLVED);
+                setPageNr(state => state + 1);
+            })
+            .catch(error => {
+                setError(error);
+                setStatus(Status.REJECTED);
+            });
+
+    }, [currentSearch]);
+
+    const onClickMore = async () => {
+        const response = await fetchImages(inputSearch, pageNr,)
+        console.log(pageNr)
+        setPageNr(state => state + 1);
+        setImages([...images, ...response]);
+        console.log(images);
       };
 
-    toggleModal = () => {
-        this.setState(({showModal}) => ({
-            showModal: !showModal,
-        }))
+    const toggleModal = () => {
+        setShowModal(!showModal);
     }
 
-    onOpenModal = e => {
-        console.log(e.target.alt);
-        this.setState({
-            showModal: true,
-            imgSrc: e.target.name,
-            imgAlt: e.target.alt,
-        });
+    const onOpenModal = e => {
+        setShowModal(true);
+        setImgSrc(e.target.name);
+        setImgAlt(e.target.alt);
     };
 
-    onCloseModal = e => {
+    const onCloseModal = e => {
         e.stopPropagation();
-        this.setState({
-            showModal: false,
-            imgSrc: '',
-            imgAlt: '',
-        })
+        setShowModal(false);
+        setImgSrc('');
+        setImgAlt('');
     }
 
-    render() {
-        const {images, error, status, showModal, imgSrc, imgAlt} = this.state;
+    if (status === Status.IDLE) {
+        return <div>Search images and photos</div>
+    }
 
-        if (status === 'idle') {
-            return <div>Search images and photos</div>
-        }
+    if (status === Status.PENDING) {
+        return <Loader />
+    }
 
-        if (status === 'pending') {
-            return <Loader />
-        }
+    if (status === Status.REJECTED) {
+        return <p>{error}</p>
+    }
 
-        if (status === 'rejected') {
-            return <p>{error}</p>
-        }
-
-        if (status === 'resolved') {
-            return (
-                <div className={css.wrapper}>
-                    <ul className={css.imageGallery}>
+    if (status === Status.RESOLVED) {
+        return (
+            <div className={css.wrapper}>
+                <ul className={css.imageGallery}>
                 {images.map((image, index) => (
                 <ImageGalleryItem 
                 image={image} 
                 key={index}
-                onClick={this.onOpenModal} 
+                onClick={onOpenModal} 
                 />
                 ))}
                 </ul>
                 {images.length > 0 ? (
                 <Btn 
-                onClick={this.onClickMore}
+                onClick={onClickMore}
                 />
                 ) : (<p>No images found</p>)}
-                {showModal && <Modal onClose={this.toggleModal}>
-                    <button className={css.closeBtn} type='button' onClick={this.onCloseModal}>Close</button>
-                    <img className={css.modal__img} src={imgSrc} alt={imgAlt} />
-                    <p className={css.modal__text}>{imgAlt}</p>
+                {showModal && <Modal onClose={toggleModal}>
+                <button className={css.closeBtn} type='button' onClick={onCloseModal}>Close</button>
+                <img className={css.modal__img} src={imgSrc} alt={imgAlt} />
+                <p className={css.modal__text}>{imgAlt}</p>
                 </Modal>}
-                </div>
-            );
-        }
-
-    };
+            </div>
+        );
+    }
 }
 
 ImageGallery.porpTypes = {

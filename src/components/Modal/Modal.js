@@ -1,20 +1,30 @@
 import css from '../Modal/Modal.module.css';
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 const modalRoot = document.querySelector('#modal_root');
 
 export const Modal = ({children, onClose}) => {
-    useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-    }, []);
-
-     const handleKeyDown = e => {
+    const handleKeyDown = e => {
         if (e.code === 'Escape') {
-            this.props.onClose();
+            onClose();
         }
     }
+
+    const keyDown = useRef(handleKeyDown);
+
+    useEffect(() => {
+        keyDown.current = handleKeyDown;
+    });
+
+    useEffect(() => {
+        const cb = e => keyDown.current(e);
+        window.addEventListener('keydown', cb);
+        return () => {
+            window.removeEventListener('keydown', cb);
+        }
+    }, []);
 
      const handleBackdrop = e => {
         if (e.currentTarget === e.target) {
