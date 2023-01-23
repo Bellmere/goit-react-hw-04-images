@@ -1,56 +1,46 @@
-import { Component } from "react";
+import { useState } from "react";
 import css from '../Searchbar/Searchbar.module.css';
 import { HiMagnifyingGlass } from "react-icons/hi2";
 import PropTypes from 'prop-types';
 
-export class Searchbar extends Component {
-    state = {
-        inputSearch : '',
-    };
-    
+export const Searchbar = (props) => {
+    const [inputSearch, setInputSearch] = useState('');
 
-    handleChange = e => {
-        this.setState({ inputSearch: e.target.value.toLowerCase() });
+    const handleChange = e => {
+        setInputSearch(e.target.value.toLowerCase());
     };
 
-    handleSubmit = e => {
+    const handleSubmit = e => {
         e.preventDefault();
-        if (this.state.inputSearch.trim() === '') {
+        if (inputSearch.trim() === '') {
             alert('Write correct word');
             return;
         } else {
-            this.props.onSubmit(this.state.inputSearch);
-            this.reset();
+            props.onSubmit(inputSearch);
+            setInputSearch('');
         }
         e.target.reset();
     }
 
-    reset = () => {
-        this.setState( {inputSearch: ''} );
-    };
-
-    render() {
-        return (
-            <header className={css.searchbar}>
-                <form onSubmit={this.handleSubmit} className={css.searchbar__form}>
-                    <button type="submit" className={css.searchbar__btn}>
-                    <span className={css.searchbar__btn__icon}>
-                        <HiMagnifyingGlass />
-                    </span>
-                    </button>
-
-                    <input
-                    className={css.searchbar__input}
-                    type="text"
-                    autoComplete="off"
-                    autoFocus
-                    placeholder="Search images and photos"
-                    onChange={this.handleChange}
-                    />
-                </form>
-            </header>
-        );
-    };
+    return (
+        <header className={css.searchbar}>
+            <form onSubmit={handleSubmit} className={css.searchbar__form}>
+                <button type="submit" className={css.searchbar__btn}>
+                <span className={css.searchbar__btn__icon}>
+                    <HiMagnifyingGlass />
+                </span>
+                </button>
+                <input
+                className={css.searchbar__input}
+                type="text"
+                autoComplete="off"
+                autoFocus
+                placeholder="Search images and photos"
+                onChange={handleChange}
+                />
+            </form>
+        </header>
+    );
 };
 
 Searchbar.propTypes = {
