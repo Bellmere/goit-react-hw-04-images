@@ -25,7 +25,6 @@ export const ImageGallery = ({currentSearch}) => {
     const [status, setStatus] = useState(Status.IDLE);
 
     useEffect(() => {
-        console.log(currentSearch);
         if (!currentSearch) {
             return;
         }
@@ -50,10 +49,8 @@ export const ImageGallery = ({currentSearch}) => {
 
     const onClickMore = async () => {
         const response = await fetchImages(inputSearch, pageNr,)
-        console.log(pageNr)
         setPageNr(state => state + 1);
         setImages([...images, ...response]);
-        console.log(images);
       };
 
     const toggleModal = () => {
