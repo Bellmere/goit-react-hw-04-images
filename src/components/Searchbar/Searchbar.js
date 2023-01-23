@@ -19,7 +19,6 @@ export const Searchbar = (props) => {
             props.onSubmit(inputSearch);
             setInputSearch('');
         }
-        e.target.reset();
     }
 
     return (
