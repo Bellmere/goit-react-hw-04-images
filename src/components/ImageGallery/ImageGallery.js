@@ -3,7 +3,6 @@ import { fetchImages } from "Api/Api";
 import { Loader } from "components/Loader/Loader";
 import { ImageGalleryItem } from "components/ImageGalleryItem/ImageGalleryItem";
 import { Btn } from "components/Button/Button";
-import { Modal } from "components/Modal/Modal";
 import css from '../ImageGallery/ImageGallery.module.css';
 import PropTypes from 'prop-types';
 
@@ -19,9 +18,6 @@ export const ImageGallery = ({currentSearch}) => {
     const [error, setError] = useState(null);
     const [images, setImages] = useState([]);
     const [pageNr, setPageNr] = useState(1);
-    const [showModal, setShowModal] = useState(false);
-    const [imgAlt, setImgAlt] = useState('');
-    const [imgSrc, setImgSrc] = useState('');
     const [status, setStatus] = useState(Status.IDLE);
 
     useEffect(() => {
@@ -53,23 +49,6 @@ export const ImageGallery = ({currentSearch}) => {
         setImages([...images, ...response]);
       };
 
-    const toggleModal = () => {
-        setShowModal(!showModal);
-    }
-
-    const onOpenModal = e => {
-        setShowModal(true);
-        setImgSrc(e.target.name);
-        setImgAlt(e.target.alt);
-    };
-
-    const onCloseModal = e => {
-        e.stopPropagation();
-        setShowModal(false);
-        setImgSrc('');
-        setImgAlt('');
-    }
-
     if (status === Status.IDLE) {
         return <div>Search images and photos</div>
     }
@@ -90,7 +69,6 @@ export const ImageGallery = ({currentSearch}) => {
                 <ImageGalleryItem 
                 image={image} 
                 key={index}
-                onClick={onOpenModal} 
                 />
                 ))}
                 </ul>
@@ -99,11 +77,6 @@ export const ImageGallery = ({currentSearch}) => {
                 onClick={onClickMore}
                 />
                 ) : (<p>No images found</p>)}
-                {showModal && <Modal onClose={toggleModal}>
-                <button className={css.closeBtn} type='button' onClick={onCloseModal}>Close</button>
-                <img className={css.modal__img} src={imgSrc} alt={imgAlt} />
-                <p className={css.modal__text}>{imgAlt}</p>
-                </Modal>}
             </div>
         );
     }
