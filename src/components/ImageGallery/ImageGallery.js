@@ -33,17 +33,17 @@ export const ImageGallery = ({currentSearch}) => {
         fetchImages(currentSearch, pageNr)
             .then(images => {
                 setInputSearch(currentSearch);
-                if (pageNr > 1) {
+                if (pageNr > 1 && currentSearch === inputSearch) {
+                    if (images.length === 0) {
+                        alert("We're sorry, but you've reached the end of search results.");
+                        return;
+                    }
                     const newImagges = images;
                     setImages(state => [...state, ...newImagges]);
                 } 
                 if (pageNr === 1) {
                     setImages(images);
                     setStatus(Status.RESOLVED);
-                }
-                if (images.length === 0) {
-                    alert("We're sorry, but you've reached the end of search results.");
-                    return;
                 }
             })
             .catch(error => {
