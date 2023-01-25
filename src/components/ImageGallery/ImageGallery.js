@@ -25,28 +25,36 @@ export const ImageGallery = ({currentSearch}) => {
             return;
         }
 
-        
-        setInputSearch(currentSearch);
-        setPageNr(1);
-        setStatus(Status.PENDING);
+        if (currentSearch !== inputSearch) {
+            setPageNr(1);
+            setStatus(Status.PENDING);
+        }
 
-        fetchImages(currentSearch, 1)
+        fetchImages(currentSearch, pageNr)
             .then(images => {
-                setImages(images);
-                setStatus(Status.RESOLVED);
-                setPageNr(state => state + 1);
+                setInputSearch(currentSearch);
+                if (pageNr > 1) {
+                    const newImagges = images;
+                    setImages(state => [...state, ...newImagges]);
+                } 
+                if (pageNr === 1) {
+                    setImages(images);
+                    setStatus(Status.RESOLVED);
+                }
+                if (images.length === 0) {
+                    alert("We're sorry, but you've reached the end of search results.");
+                    return;
+                }
             })
             .catch(error => {
                 setError(error);
                 setStatus(Status.REJECTED);
             });
 
-    }, [currentSearch]);
+    }, [currentSearch, pageNr, inputSearch]);
 
-    const onClickMore = async () => {
-        const response = await fetchImages(inputSearch, pageNr,)
+    const onClickMore =  () => {
         setPageNr(state => state + 1);
-        setImages([...images, ...response]);
       };
 
     if (status === Status.IDLE) {
